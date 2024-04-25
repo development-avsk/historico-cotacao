@@ -1,0 +1,62 @@
+== Historico de Cotação ==
+
+Descrição: (Este projeto consiste em um robô que automatiza a tarefa de coletar dados de cotação de um banco de dados e os traz para uma planilha. Ele simplifica o processo de análise de histórico de cotações,
+ permitindo que os usuários obtenham dados de forma rápida e eficiente.)
+
+Autor: (Fabio Setubal)
+
+Data: (25/04/2024)
+
+---
+
+== Requisitos ==
+
+### Bibliotecas Python ###
+
+1. **os.path**
+   - Descrição: Biblioteca para manipulação de caminhos de arquivos.
+
+
+2. **os**
+   - Descrição: Biblioteca para interação com o sistema operacional.
+
+3. **mysql.connector**
+   - Descrição: Biblioteca para conexão com bancos de dados MySQL.
+   
+
+4. **oauth2client**
+   - Descrição: Biblioteca para autenticação OAuth 2.0.
+   - Submódulo: `service_account`
+     - Descrição: Utilizado para autenticação via credenciais de conta de serviço.
+
+
+5. **googleapiclient**
+   - Descrição: Biblioteca para interação com APIs do Google.
+   - Submódulo: `discovery`
+     - Descrição: Utilizado para construir serviços da API do Google.
+
+
+### Módulos Personalizados ###
+
+1. **src.database.env.config**
+   - Descrição: Módulo para configuração do ambiente de banco de dados.
+
+2. **src.app.descricao_produto.descricao_s_fornecedor**
+   - Descrição: Função ou classe relacionada à descrição de produtos de fornecedores.
+
+3. **src.app.limpar_descricao.limpar_descricao**
+   - Descrição: Função ou classe relacionada à limpeza de descrições de produtos.
+
+4. **src.app.cotacao.cotacao**
+   - Descrição: Funcionalidade relacionada à cotação de produtos.
+
+5. **src.app.utils.column_titles.column_titles**
+   - Descrição: Função ou classe relacionada à definição de títulos de colunas.
+
+6. **src.api.google_sheets.get_client_secret_path**
+   - Descrição: Função para obter o caminho do arquivo de segredo do cliente para acesso a planilhas do Google.
+
+### Observações ###
+
+- Certifique-se de instalar todas as bibliotecas e módulos listados acima antes de executar o projeto.
+
