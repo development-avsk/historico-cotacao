@@ -10,7 +10,6 @@ from src.app.cotacao import cotacao
 from src.app.utils.column_titles import column_titles
 from src.api.google_sheets import get_client_secret_path
 
-
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 

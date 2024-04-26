@@ -56,7 +56,8 @@ def cotacao(sheet, conn, column_titles):
    # Atribuir os índices das colunas a variáveis
     indice_descricao, indice_preco_custo, indice_ipi, indice_icms_st, indice_frete_fornecedor, \
     indice_frete_cliente, indice_margem, indice_data_cotacao_bd, indice_data_hist_cotacao_bd, \
-    indice_data_responsavel, indice_data_status, indice_data_link, indice_data_prazo_fornecedor = column_indices
+    indice_data_responsavel, indice_data_status, indice_data_link, indice_data_prazo_fornecedor, \
+    indice_data_fornecedor, indice_data_nota,  = column_indices
 
     # Convertendo os índices da coluna para o nome da coluna
     nome_coluna_descricao = index_to_column(indice_descricao)
@@ -72,6 +73,8 @@ def cotacao(sheet, conn, column_titles):
     nome_coluna_data_status = index_to_column(indice_data_status)
     nome_coluna_data_link = index_to_column(indice_data_link)
     nome_coluna_data_prazo_fornecedor = index_to_column(indice_data_prazo_fornecedor)
+    nome_coluna_data_fornecedor = index_to_column(indice_data_fornecedor)
+    nome_coluna_data_nota = index_to_column(indice_data_nota)
 
     # Recuperar os valores para cada coluna
     values_data_descricao = get_column_values(sheet, nome_coluna_descricao, SAMPLE_SPREADSHEET_ID)
@@ -84,7 +87,8 @@ def cotacao(sheet, conn, column_titles):
     values_data_responsavel = get_column_values(sheet, nome_coluna_data_responsavel, SAMPLE_SPREADSHEET_ID)
     values_data_link = get_column_values(sheet, nome_coluna_data_link, SAMPLE_SPREADSHEET_ID)
     values_data_prazo_fornecedor = get_column_values(sheet, nome_coluna_data_prazo_fornecedor, SAMPLE_SPREADSHEET_ID)
-    
+    values_data_fornecedor = get_column_values(sheet, nome_coluna_data_fornecedor, SAMPLE_SPREADSHEET_ID)
+    values_data_nota = get_column_values(sheet, nome_coluna_data_nota, SAMPLE_SPREADSHEET_ID)
 
     # Verificar se há dados na coluna "Descrição Sem Fornecedor"
     if not values_data_descricao:
@@ -94,17 +98,17 @@ def cotacao(sheet, conn, column_titles):
     batch_update = {'valueInputOption': 'RAW', 'data': []}
     
     # Imprimir os valores da coluna "Descrição Sem Fornecedor" e "Preço Custo do Produto"
-    for i, (descricao, preco_custo, ipi, icms_st, frete_fornecedor, frete_cliente, margem,responsavel, link, prazo_fornecedor) in enumerate(zip(
-        values_data_descricao,
-        values_data_preco_custo,
-        values_data_ipi,
-        values_data_icms_st,
-        values_data_frete_fornecedor,
-        values_data_frete_cliente,
-        values_data_margem,
-        values_data_responsavel,
-        values_data_link,
-        values_data_prazo_fornecedor
+    for i, (
+        descricao, preco_custo, ipi, icms_st,
+        frete_fornecedor, frete_cliente, margem,responsavel,
+        link, prazo_fornecedor, fornecedor, nota
+        ) in enumerate(zip(
+        values_data_descricao, values_data_preco_custo,
+        values_data_ipi, values_data_icms_st,
+        values_data_frete_fornecedor, values_data_frete_cliente,
+        values_data_margem, values_data_responsavel,
+        values_data_link, values_data_prazo_fornecedor,
+        values_data_fornecedor, values_data_nota
         ), start=2):
         cursor = conn.cursor()
 
@@ -133,10 +137,17 @@ def cotacao(sheet, conn, column_titles):
                     responsavel_value = responsavel[0] if responsavel else None
                     link_value = link[0] if link else None
                     prazo_value = prazo_fornecedor[0] if prazo_fornecedor else None
+                    fornecedor_value = fornecedor[0] if fornecedor else None
+                    nota_value = nota[0] if nota else None
 
                     # Executa a inserção na tabela
-                    cursor.execute(f"INSERT INTO {banco_dados} (descricao, preco_custo, ipi, icms_st, frete_fornecedor, frete_cliente, margem, data, responsavel, link, prazo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                (descricao_value, preco_custo, ipi_value, icms_st, frete_fornecedor, frete_cliente, margem_value, data_atual, responsavel_value, link_value, prazo_value))
+                    cursor.execute(f"INSERT INTO {banco_dados} (descricao, preco_custo, ipi, icms_st, frete_fornecedor, frete_cliente, margem, data, responsavel, link, prazo, fornecedor, nota_petronect) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                (
+                                descricao_value, preco_custo, ipi_value, icms_st,
+                                frete_fornecedor, frete_cliente, margem_value, data_atual,
+                                responsavel_value, link_value, prazo_value, fornecedor_value,
+                                nota_value
+                                ))
                     conn.commit()
                     print(f"Dados da linha {i} inseridos com sucesso na tabela 'cotacao'.")
 
@@ -146,8 +157,8 @@ def cotacao(sheet, conn, column_titles):
                 id_antigo = cursor.fetchone()[0]
                 
                 # Atualiza o registro mais antigo com os novos valores
-                cursor.execute(f"UPDATE {banco_dados} SET preco_custo = %s, ipi = %s, icms_st = %s, frete_fornecedor = %s, frete_cliente = %s, margem = %s, data = %s , responsavel = %s, link = %s, prazo = %s WHERE id = %s",
-                            (preco_custo[0], ipi[0], icms_st[0], frete_fornecedor[0], frete_cliente[0], margem[0], data_atual, responsavel[0], link[0], prazo_fornecedor[0], id_antigo))
+                cursor.execute(f"UPDATE {banco_dados} SET preco_custo = %s, ipi = %s, icms_st = %s, frete_fornecedor = %s, frete_cliente = %s, margem = %s, data = %s , responsavel = %s, link = %s, prazo = %s , fornecedor = %s, nota_petronect = %s WHERE id = %s",
+                            (preco_custo[0], ipi[0], icms_st[0], frete_fornecedor[0], frete_cliente[0], margem[0], data_atual, responsavel[0], link[0], prazo_fornecedor[0], fornecedor[0], nota[0] ,id_antigo))
                 conn.commit(),
                 print(f"Valor mais antigo atualizado com sucesso para a descrição '{descricao[0]}'.")
 
@@ -173,6 +184,8 @@ def cotacao(sheet, conn, column_titles):
                 update_value_data_responsavel = cotacao_info[9]
                 update_value_data_link = cotacao_info[10]
                 update_value_data_prazo_fornecedor = cotacao_info[11]
+                update_value_data_fornecedor = cotacao_info[12]
+                update_value_data_nota = cotacao_info[13]
 
                 atualizacoes = [
                     (nome_coluna_preco_custo, update_value_preco_custo),
@@ -185,7 +198,9 @@ def cotacao(sheet, conn, column_titles):
                     (nome_coluna_data_responsavel, update_value_data_responsavel),
                     (nome_coluna_data_status, "Historico-Robo"),
                     (nome_coluna_data_link, update_value_data_link),
-                    (nome_coluna_data_prazo_fornecedor, update_value_data_prazo_fornecedor)
+                    (nome_coluna_data_prazo_fornecedor, update_value_data_prazo_fornecedor),
+                    (nome_coluna_data_fornecedor, update_value_data_fornecedor),
+                    (nome_coluna_data_nota, update_value_data_nota)
                 ]
 
                 for coluna, valor in atualizacoes:

@@ -11,6 +11,8 @@ column_titles = [
         "Responsavel",
         "Status",
         "Fornecedores:",
-        "Prazo de Entrega - Fornecedor"
+        "Prazo de Entrega - Fornecedor",
+        "Fornecedor",
+        "Notas para Apresentar na Petronect:"
     ]
 
